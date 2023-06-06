@@ -14,6 +14,11 @@
 
 Mini-projeto em Flutter/Dart desenvolvido na disciplina de POO I (DCT1107) da UFRN ministrada pelo professor Fabricio Vale de Azevedo Guerra. Esse aplicativo exibe e filtra imagens de gatos, por raças e categorias. Além disso, possiblita o usuário favoritar as imagens dos gatos/cachorros.
 
+| Inicio | Raças | Pesquisar | Sobre |
+|---|---|---|---|
+<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Home.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Racas.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Busca.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Creditos.png?raw=true'></img>
+<br/>
+
 <a id="Api"></a>
 ## :rocket: API UTILIZADA
 

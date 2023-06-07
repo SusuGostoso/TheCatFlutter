@@ -39,11 +39,15 @@ As dependências que o projeto utiliza são:
 ## :bulb:	COMO ABRIR E RODAR O APLICATIVO
 
 #### Para executar e rodar esse aplicativo você deve:
-
 - Ter o [Flutter](https://docs.flutter.dev/get-started/install) instalado em sua máquina;
 - Ter algum editor de códigos ou IDE como o [Android Studio](https://developer.android.com/studio) ou [Intellij Idea](https://www.jetbrains.com/pt-br/idea/download/).
 
 É de suma importância que você utilize o comando `flutter run -d chrome --web-renderer html` para rodar o aplicativo. Lembre-se de navegar até a pasta do projeto antes de executá-lo. A API infelizmente bloqueia a sua utilização fora da "navegação web", por exemplo, ela não permite que eu exiba as imagens em uma área de desenvolvimento que não seja web.
+
+> Caso você tenha o Git instalado na sua máquina, basta dar git clone:
+```BASH
+git clone --single-branch --branch master https://github.com/SusuGostoso/TheCatFlutter.git
+```
 
 <a id="Creditos"></a>
 ## :trophy:	CRÉDITOS

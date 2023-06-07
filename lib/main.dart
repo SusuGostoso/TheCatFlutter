@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class AppConfig {
-  int gostei = 0;
-  int likeCats = 0;
-  int likeDogs = 0;
+  int tipo_animal = 0;
 
   static Future<Map<String, dynamic>> getAnimalDetails(
       String animalId, int typeAnimal) async {
@@ -34,10 +32,9 @@ class Animal {
   final int tipo;
 
   Animal({required this.id, required this.url, required this.tipo});
-  //Recipe({required this.id, required this.title, required this.image});
 }
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -62,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
   dynamic catImage;
   bool loading = false;
   String? errorMessage;
-  int gostei = AppConfig().gostei;
+  int tipo_animal = AppConfig().tipo_animal;
 
   @override
   void initState() {
@@ -73,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> amei() async {
     if (catImage != null) {
       Animal likeAnimmal =
-          Animal(id: catImage["id"], url: catImage["url"], tipo: gostei);
+          Animal(id: catImage["id"], url: catImage["url"], tipo: tipo_animal);
 
       Favoritos.animaisFavoritos.add(likeAnimmal);
 
@@ -93,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     try {
-      final response = await http.get(Uri.parse(apiLinks[gostei]));
+      final response = await http.get(Uri.parse(apiLinks[tipo_animal]));
 
       if (response.statusCode == 200) {
         final catImages = jsonDecode(response.body) as List<dynamic>;
@@ -122,10 +119,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void dislikeImage() {
-    if (gostei == 1) {
-      gostei = 0;
+    if (tipo_animal == 1) {
+      tipo_animal = 0;
     } else {
-      gostei = 1;
+      tipo_animal = 1;
     }
     fetchCatImage();
   }
@@ -1171,16 +1168,17 @@ class _FavoritosState extends State<Favoritos> {
     );
   }
 
-  void handleImageTap(Animal animal) {
-    // Add your logic here for the action to be performed when an image is tapped
-    print('Image ID: ${animal.id}');
-    // Execute your code here
-  }
+  void _removeAllFavorites() {
+    setState(() {
+      Favoritos.animaisFavoritos.clear();
+    });
 
-  void handleInfoTap(Animal animal) {
-    // Add your logic here for the action to be performed when info icon is tapped
-    print('Info icon tapped: ${animal.url} e ${animal.id}');
-    // Execute your code here
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Todos os favoritos removidos com sucesso!"),
+        duration: Duration(milliseconds: 1000),
+      ),
+    );
   }
 
   Future<void> exibirDetalhes(context, Animal animal) async {
@@ -1202,9 +1200,22 @@ class _FavoritosState extends State<Favoritos> {
       ),
       body: Favoritos.animaisFavoritos.isEmpty
           ? Center(
-              child: Text(
-                'Nenhum favorito',
-                style: TextStyle(fontSize: 18),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error,
+                    size: 64,
+                    color: Colors.blue,
+                  ),
+                  Text(
+                    'Nenhum favorito! :(',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             )
           : Column(
@@ -1315,6 +1326,20 @@ class _FavoritosState extends State<Favoritos> {
           ),
         ],
       ),
+      floatingActionButton: Favoritos.animaisFavoritos.isEmpty
+          ? SizedBox(height: 20)
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  heroTag: "bt1",
+                  onPressed: _removeAllFavorites,
+                  tooltip: 'Remover tudo',
+                  child: const Icon(Icons.delete),
+                ),
+                const SizedBox(width: 16),
+              ],
+            ),
     );
   }
 }
@@ -1437,7 +1462,7 @@ class _InfoAnimalState extends State<InfoAnimal> {
     }
 
     if (widget.animalDetails.containsKey('categories')) {
-      //print("Existe categories - id: ${widget.animalDetails['id']}");
+      print("Existe categories - id: ${widget.animalDetails['id']}");
     } else {
       //print("Não existe categories! - id: ${widget.animalDetails['id']}");
     }
@@ -1510,7 +1535,7 @@ class _InfoAnimalState extends State<InfoAnimal> {
                                     children: List.generate(5, (i) {
                                       if (i < valor) {
                                         return Icon(Icons.star,
-                                            color: Colors.yellow);
+                                            color: Colors.blue);
                                       } else {
                                         return Icon(Icons.star_border,
                                             color: Colors.grey);
@@ -1523,17 +1548,6 @@ class _InfoAnimalState extends State<InfoAnimal> {
                       },
                     ),
                   ),
-                  /*
-            Expanded(
-              child: ListView.builder(
-                itemCount: widget.animalDetails['extendedIngredients'].length,
-                itemBuilder: (context, index) {
-                  return Text(
-                      '- ${widget.animalDetails['extendedIngredients'][index]['original']}');
-                },
-              ),
-            ),
-            */
                 ],
               ),
       ),

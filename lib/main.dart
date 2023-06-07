@@ -6,6 +6,35 @@ class AppConfig {
   int gostei = 0;
   int likeCats = 0;
   int likeDogs = 0;
+
+  static Future<Map<String, dynamic>> getAnimalDetails(
+      String animalId, int typeAnimal) async {
+    String api_link = "";
+
+    if (typeAnimal == 0) {
+      api_link = "https://api.thecatapi.com/v1/images/$animalId";
+    } else {
+      api_link = "https://api.thedogapi.com/v1/images/$animalId";
+    }
+
+    final response = await http.get(Uri.parse(api_link));
+
+    if (response.statusCode == 200) {
+      final animals = jsonDecode(response.body);
+      return animals;
+    } else {
+      throw Exception('Falha ao buscar as informações do bixin!');
+    }
+  }
+}
+
+class Animal {
+  final String id;
+  final String url;
+  final int tipo;
+
+  Animal({required this.id, required this.url, required this.tipo});
+  //Recipe({required this.id, required this.title, required this.image});
 }
 
 void main() => runApp(MyApp());
@@ -17,6 +46,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'The Cat Flutter',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
       home: HomeScreen(),
     );
@@ -38,6 +68,17 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     fetchCatImage();
+  }
+
+  Future<void> amei() async {
+    if (catImage != null) {
+      Animal likeAnimmal =
+          Animal(id: catImage["id"], url: catImage["url"], tipo: gostei);
+
+      Favoritos.animaisFavoritos.add(likeAnimmal);
+
+      fetchCatImage();
+    }
   }
 
   Future<void> fetchCatImage() async {
@@ -145,6 +186,11 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (index == 3) {
             Navigator.push(
               context,
+              MaterialPageRoute(builder: (context) => Favoritos()),
+            );
+          } else if (index == 4) {
+            Navigator.push(
+              context,
               MaterialPageRoute(builder: (context) => AboutScreen()),
             );
           }
@@ -164,6 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Busca',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favoritos',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.info),
             label: 'Sobre',
           ),
@@ -181,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 16),
           FloatingActionButton(
             heroTag: "bt2",
-            onPressed: likeImage,
+            onPressed: amei,
             tooltip: 'Gostei',
             child: const Icon(Icons.thumb_up),
           ),
@@ -358,6 +408,7 @@ class _BreedsScreenState extends State<BreedsScreen> {
       if (response.statusCode == 200) {
         setState(() {
           catImages = jsonDecode(response.body) as List<dynamic>;
+          catImages.forEach((image) => image['isFavorite'] = false);
         });
       } else {
         setState(() {
@@ -424,19 +475,60 @@ class _BreedsScreenState extends State<BreedsScreen> {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
               ),
-              itemCount: catImages
-                  .length, // Replace with actual image count based on selected breed
+              itemCount: catImages.length,
               itemBuilder: (context, index) {
                 final imageUrl = catImages[index]['url'] as String?;
+                final isFavorite = catImages[index]['isFavorite'] as bool;
 
                 return Card(
-                  child: Image.network(
-                    imageUrl!,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                          child: Text('Erro ao carregam a imagem!'));
-                    },
-                  ), // Replace with an Image widget using the corresponding image URL
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        imageUrl!,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                              child: Text('Erro ao carregar a imagem!'));
+                        },
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Visibility(
+                          visible: !isFavorite,
+                          child: Tooltip(
+                            message: 'Favoritar',
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.favorite,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                Animal likeAnimmal = Animal(
+                                    id: catImages[index]["id"],
+                                    url: catImages[index]["url"],
+                                    tipo: 0);
+
+                                //Adicionou aos favoritos
+                                Favoritos.animaisFavoritos.add(likeAnimmal);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        "Adicionado aos favoritos com sucesso!"),
+                                    duration: Duration(milliseconds: 600),
+                                  ),
+                                );
+
+                                setState(() {
+                                  catImages[index]['isFavorite'] = true;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
@@ -461,6 +553,11 @@ class _BreedsScreenState extends State<BreedsScreen> {
           } else if (index == 3) {
             Navigator.push(
               context,
+              MaterialPageRoute(builder: (context) => Favoritos()),
+            );
+          } else if (index == 4) {
+            Navigator.push(
+              context,
               MaterialPageRoute(builder: (context) => AboutScreen()),
             );
           }
@@ -478,6 +575,10 @@ class _BreedsScreenState extends State<BreedsScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Busca',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favoritos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
@@ -693,6 +794,7 @@ class _SearchScreenState extends State<SearchScreen> {
       if (response.statusCode == 200) {
         setState(() {
           catImages = jsonDecode(response.body) as List<dynamic>;
+          catImages.forEach((image) => image['isFavorite'] = false);
         });
       } else {
         setState(() {
@@ -792,14 +894,56 @@ class _SearchScreenState extends State<SearchScreen> {
               itemCount: catImages.length,
               itemBuilder: (context, index) {
                 final imageUrl = catImages[index]['url'] as String?;
+                final isFavorite = catImages[index]['isFavorite'] as bool;
 
                 return Card(
-                  child: Image.network(
-                    imageUrl!,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                          child: Text('Erro ao carregar a imagem!'));
-                    },
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        imageUrl!,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                              child: Text('Erro ao carregar a imagem!'));
+                        },
+                      ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Visibility(
+                          visible: !isFavorite,
+                          child: Tooltip(
+                            message: 'Favoritar',
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.favorite,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                Animal likeAnimmal = Animal(
+                                    id: catImages[index]["id"],
+                                    url: catImages[index]["url"],
+                                    tipo: 0);
+
+                                //Adicionou aos favoritos
+                                Favoritos.animaisFavoritos.add(likeAnimmal);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        "Adicionado aos favoritos com sucesso!"),
+                                    duration: Duration(milliseconds: 600),
+                                  ),
+                                );
+
+                                setState(() {
+                                  catImages[index]['isFavorite'] = true;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
@@ -835,6 +979,11 @@ class _SearchScreenState extends State<SearchScreen> {
           } else if (index == 3) {
             Navigator.push(
               context,
+              MaterialPageRoute(builder: (context) => Favoritos()),
+            );
+          } else if (index == 4) {
+            Navigator.push(
+              context,
               MaterialPageRoute(builder: (context) => AboutScreen()),
             );
           }
@@ -852,6 +1001,10 @@ class _SearchScreenState extends State<SearchScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Busca',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favoritos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
@@ -874,9 +1027,17 @@ class AboutScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            /*
             Text(
               'The Cat Flutter',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            
+            SizedBox(height: 16),
+            */
+            Image.asset(
+              "images/src/gatosusu.png",
+              width: 300,
             ),
             SizedBox(height: 16),
             Text(
@@ -965,6 +1126,418 @@ class AboutScreen extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
+        currentIndex: 1,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          }
+        },
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            label: 'Sobre',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Favoritos extends StatefulWidget {
+  static List<Animal> animaisFavoritos = [];
+
+  @override
+  _FavoritosState createState() => _FavoritosState();
+}
+
+class _FavoritosState extends State<Favoritos> {
+  void _removeFavorite(Animal animal) {
+    setState(() {
+      Favoritos.animaisFavoritos.remove(animal);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Removido dos favoritos com sucesso!"),
+        duration: Duration(milliseconds: 600),
+      ),
+    );
+  }
+
+  void handleImageTap(Animal animal) {
+    // Add your logic here for the action to be performed when an image is tapped
+    print('Image ID: ${animal.id}');
+    // Execute your code here
+  }
+
+  void handleInfoTap(Animal animal) {
+    // Add your logic here for the action to be performed when info icon is tapped
+    print('Info icon tapped: ${animal.url} e ${animal.id}');
+    // Execute your code here
+  }
+
+  Future<void> exibirDetalhes(context, Animal animal) async {
+    Map<String, dynamic> animalDetails =
+        await AppConfig.getAnimalDetails(animal.id, animal.tipo);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InfoAnimal(animalDetails),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Favoritos'),
+      ),
+      body: Favoritos.animaisFavoritos.isEmpty
+          ? Center(
+              child: Text(
+                'Nenhum favorito',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                    ),
+                    itemCount: Favoritos.animaisFavoritos.length,
+                    itemBuilder: (context, index) {
+                      Animal animal = Favoritos.animaisFavoritos[index];
+
+                      return GestureDetector(
+                        onTap: () async {
+                          exibirDetalhes(context, animal);
+                        },
+                        child: Card(
+                          child: Stack(
+                            children: [
+                              Container(
+                                alignment: Alignment.center,
+                                child: Image.network(
+                                  animal.url,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Center(
+                                      child: Text('Erro ao carregar a imagem!'),
+                                    );
+                                  },
+                                ),
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Column(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        _removeFavorite(animal);
+                                      },
+                                      child: Tooltip(
+                                        message: 'Remover favorito',
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: const EdgeInsets.all(6),
+                                          child: const Icon(
+                                            Icons.delete,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        exibirDetalhes(context, animal);
+                                      },
+                                      child: Tooltip(
+                                        message: 'Informações',
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.blue,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: const EdgeInsets.all(6),
+                                          child: const Icon(
+                                            Icons.info,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 1,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Inicio',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favoritos',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class InfoAnimal extends StatefulWidget {
+  final Map<String, dynamic> animalDetails;
+
+  InfoAnimal(this.animalDetails);
+
+  @override
+  _InfoAnimalState createState() => _InfoAnimalState();
+}
+
+class _InfoAnimalState extends State<InfoAnimal> {
+  String titulo = "The Cat Flutter!";
+
+  List<Map<String, dynamic>> getInfos = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.animalDetails.containsKey('breeds')) {
+      //Existe informação no ID do gato
+
+      if (widget.animalDetails["breeds"][0].containsKey('description')) {
+        getInfos.add(
+            {"Descrição": widget.animalDetails["breeds"][0]["description"]});
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('name')) {
+        titulo = widget.animalDetails["breeds"][0]["name"];
+        getInfos.add({"Raça": titulo});
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('origin')) {
+        getInfos.add({"Origem": widget.animalDetails["breeds"][0]["origin"]});
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('life_span')) {
+        getInfos.add({
+          "Vida útil (anos)": widget.animalDetails["breeds"][0]["life_span"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('temperament')) {
+        getInfos.add(
+            {"Temperamento": widget.animalDetails["breeds"][0]["temperament"]});
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('intelligence')) {
+        getInfos.add({
+          "Inteligência": widget.animalDetails["breeds"][0]["intelligence"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('adaptability')) {
+        getInfos.add({
+          "Capacidade de Adaptação": widget.animalDetails["breeds"][0]
+              ["adaptability"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('affection_level')) {
+        getInfos.add({
+          "Nível de Afeição": widget.animalDetails["breeds"][0]
+              ["affection_level"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('child_friendly')) {
+        getInfos.add({
+          "Amigo de Criança": widget.animalDetails["breeds"][0]
+              ["child_friendly"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('energy_level')) {
+        getInfos.add({
+          "Nível de energia": widget.animalDetails["breeds"][0]["energy_level"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('health_issues')) {
+        getInfos.add({
+          "Problemas de Saúde": widget.animalDetails["breeds"][0]
+              ["health_issues"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('social_needs')) {
+        getInfos.add({
+          "Necessidade de socialização": widget.animalDetails["breeds"][0]
+              ["social_needs"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('stranger_friendly')) {
+        getInfos.add({
+          "Afeição por Estranhos": widget.animalDetails["breeds"][0]
+              ["stranger_friendly"]
+        });
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('vocalisation')) {
+        getInfos.add(
+            {"Vocalização": widget.animalDetails["breeds"][0]["vocalisation"]});
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('hairless')) {
+        getInfos.add(
+            {"Queda de pelo": widget.animalDetails["breeds"][0]["hairless"]});
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('rare')) {
+        getInfos.add({"Raridade": widget.animalDetails["breeds"][0]["rare"]});
+      }
+    } else {
+      //print("Não existe breeds! - id: ${widget.animalDetails['id']}");
+    }
+
+    if (widget.animalDetails.containsKey('categories')) {
+      //print("Existe categories - id: ${widget.animalDetails['id']}");
+    } else {
+      //print("Não existe categories! - id: ${widget.animalDetails['id']}");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(titulo),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: getInfos.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: Image.network(
+                        widget.animalDetails['url'],
+                        fit: BoxFit.contain,
+                        width: 250,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Nenhuma informação encontrada :(',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                  ],
+                ),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: Image.network(
+                        widget.animalDetails['url'],
+                        fit: BoxFit.contain,
+                        width: 250,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Informações:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: getInfos.length,
+                      itemBuilder: (context, index) {
+                        String chave = getInfos[index].keys.first;
+                        dynamic valor = getInfos[index][chave];
+
+                        return Card(
+                          child: ListTile(
+                            title: Text(chave),
+                            subtitle: (valor is int)
+                                ? Row(
+                                    children: List.generate(5, (i) {
+                                      if (i < valor) {
+                                        return Icon(Icons.star,
+                                            color: Colors.yellow);
+                                      } else {
+                                        return Icon(Icons.star_border,
+                                            color: Colors.grey);
+                                      }
+                                    }),
+                                  )
+                                : Text(valor.toString()),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  /*
+            Expanded(
+              child: ListView.builder(
+                itemCount: widget.animalDetails['extendedIngredients'].length,
+                itemBuilder: (context, index) {
+                  return Text(
+                      '- ${widget.animalDetails['extendedIngredients'][index]['original']}');
+                },
+              ),
+            ),
+            */
+                ],
+              ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: 3,
         onTap: (index) {
           if (index == 0) {
@@ -982,8 +1555,14 @@ class AboutScreen extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (context) => SearchScreen()),
             );
+          } else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Favoritos()),
+            );
           }
         },
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -998,8 +1577,8 @@ class AboutScreen extends StatelessWidget {
             label: 'Busca',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.info),
-            label: 'Sobre',
+            icon: Icon(Icons.favorite),
+            label: 'Favoritos',
           ),
         ],
       ),

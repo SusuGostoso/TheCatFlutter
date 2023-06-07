@@ -12,12 +12,16 @@
 <a id="Introdução"></a>
 ## :smiley_cat: INTRODUÇÃO
 
-Mini-projeto em Flutter/Dart desenvolvido na disciplina de POO I (DCT1107) da UFRN ministrada pelo professor Fabricio Vale de Azevedo Guerra. Esse aplicativo exibe e filtra imagens de gatos, por raças e categorias. Além disso, possiblita o usuário favoritar as imagens dos gatos/cachorros.
+Mini-projeto em Flutter/Dart desenvolvido na disciplina de POO I (DCT1107) da UFRN ministrada pelo professor Fabricio Vale de Azevedo Guerra. Esse aplicativo exibe e filtra imagens de gatos, por raças e categorias. Além disso, possiblita o usuário favoritar as imagens dos gatos/cachorros. O aplicativo possui 4 páginas principais:
 
-| Inicio | Raças | Pesquisar | Sobre |
+| Inicio | Raças | Busca | Favoritos |
 |---|---|---|---|
-<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Home.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Racas.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Busca.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Creditos.png?raw=true'></img>
+<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Home.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Racas.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Busca.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Favoritos.png?raw=true'></img>
 <br/>
+
+| Descrição | Sobre |
+|---|---|
+<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Descricao.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Sobre.png?raw=true'></img>
 
 <a id="Api"></a>
 ## :rocket: API UTILIZADA

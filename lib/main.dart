@@ -19,6 +19,9 @@ class AppConfig {
 
     if (response.statusCode == 200) {
       final animals = jsonDecode(response.body);
+
+      animals['tipo'] = typeAnimal;
+
       return animals;
     } else {
       throw Exception('Falha ao buscar as informações do bixin!');
@@ -76,6 +79,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
       fetchCatImage();
     }
+  }
+
+  Future<void> exibirDetalhes(context, Animal animal) async {
+    Map<String, dynamic> animalDetails =
+        await AppConfig.getAnimalDetails(animal.id, animal.tipo);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InfoAnimal(animalDetails),
+      ),
+    );
   }
 
   Future<void> fetchCatImage() async {
@@ -148,7 +162,13 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    fetchCatImage();
+                    //fetchCatImage();
+                    Animal iAnimal = Animal(
+                        id: catImage["id"],
+                        url: catImage['url'],
+                        tipo: tipo_animal);
+
+                    exibirDetalhes(context, iAnimal);
                   },
                   child: Card(
                     child: Image.network(
@@ -393,6 +413,10 @@ class _BreedsScreenState extends State<BreedsScreen> {
     // Adicione aqui outros nomes de raças e seus IDs correspondentes
   };
 
+  bool animalExists(String id) {
+    return Favoritos.animaisFavoritos.any((animal) => animal.id == id);
+  }
+
   Future<void> fetchCatImages() async {
     setState(() {
       loading = true;
@@ -405,7 +429,14 @@ class _BreedsScreenState extends State<BreedsScreen> {
       if (response.statusCode == 200) {
         setState(() {
           catImages = jsonDecode(response.body) as List<dynamic>;
-          catImages.forEach((image) => image['isFavorite'] = false);
+
+          catImages.forEach((element) {
+            if (animalExists(element["id"])) {
+              element["isFavorite"] = true;
+            } else {
+              element["isFavorite"] = false;
+            }
+          });
         });
       } else {
         setState(() {
@@ -477,54 +508,64 @@ class _BreedsScreenState extends State<BreedsScreen> {
                 final imageUrl = catImages[index]['url'] as String?;
                 final isFavorite = catImages[index]['isFavorite'] as bool;
 
-                return Card(
-                  child: Stack(
-                    children: [
-                      Image.network(
-                        imageUrl!,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Center(
-                              child: Text('Erro ao carregar a imagem!'));
-                        },
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Visibility(
-                          visible: !isFavorite,
-                          child: Tooltip(
-                            message: 'Favoritar',
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.favorite,
-                                color: Colors.red,
+                return GestureDetector(
+                  onTap: () async {
+                    Animal uAnimmal = Animal(
+                        id: catImages[index]["id"],
+                        url: catImages[index]["url"],
+                        tipo: 0);
+
+                    _HomeScreenState().exibirDetalhes(context, uAnimmal);
+                  },
+                  child: Card(
+                    child: Stack(
+                      children: [
+                        Image.network(
+                          imageUrl!,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                                child: Text('Erro ao carregar a imagem!'));
+                          },
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Visibility(
+                            visible: !isFavorite,
+                            child: Tooltip(
+                              message: 'Favoritar',
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.favorite,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  Animal likeAnimmal = Animal(
+                                      id: catImages[index]["id"],
+                                      url: catImages[index]["url"],
+                                      tipo: 0);
+
+                                  //Adicionou aos favoritos
+                                  Favoritos.animaisFavoritos.add(likeAnimmal);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          "Adicionado aos favoritos com sucesso!"),
+                                      duration: Duration(milliseconds: 600),
+                                    ),
+                                  );
+
+                                  setState(() {
+                                    catImages[index]['isFavorite'] = true;
+                                  });
+                                },
                               ),
-                              onPressed: () {
-                                Animal likeAnimmal = Animal(
-                                    id: catImages[index]["id"],
-                                    url: catImages[index]["url"],
-                                    tipo: 0);
-
-                                //Adicionou aos favoritos
-                                Favoritos.animaisFavoritos.add(likeAnimmal);
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        "Adicionado aos favoritos com sucesso!"),
-                                    duration: Duration(milliseconds: 600),
-                                  ),
-                                );
-
-                                setState(() {
-                                  catImages[index]['isFavorite'] = true;
-                                });
-                              },
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -613,7 +654,9 @@ class _SearchScreenState extends State<SearchScreen> {
     "Pias",
     "Espaço",
     "Óculos de sol",
-    "Laços"
+    "Laços",
+    "Caturday",
+    "Cozinha"
   ];
 
   Map<String, String> categoriesIds = {
@@ -624,7 +667,9 @@ class _SearchScreenState extends State<SearchScreen> {
     'Pias': '14',
     'Espaço': '2',
     'Óculos de sol': '4',
-    'Laços': '7'
+    'Laços': '7',
+    'Caturday': '6',
+    'Cozinha': '10'
   };
 
   String? selectedCategory;
@@ -779,6 +824,10 @@ class _SearchScreenState extends State<SearchScreen> {
     'York Chocolate': 'ycho'
   };
 
+  bool animalExists(String id) {
+    return Favoritos.animaisFavoritos.any((animal) => animal.id == id);
+  }
+
   Future<void> fetchCatImages() async {
     setState(() {
       loading = true;
@@ -791,7 +840,13 @@ class _SearchScreenState extends State<SearchScreen> {
       if (response.statusCode == 200) {
         setState(() {
           catImages = jsonDecode(response.body) as List<dynamic>;
-          catImages.forEach((image) => image['isFavorite'] = false);
+          catImages.forEach((element) {
+            if (animalExists(element["id"])) {
+              element["isFavorite"] = true;
+            } else {
+              element["isFavorite"] = false;
+            }
+          });
         });
       } else {
         setState(() {
@@ -893,54 +948,64 @@ class _SearchScreenState extends State<SearchScreen> {
                 final imageUrl = catImages[index]['url'] as String?;
                 final isFavorite = catImages[index]['isFavorite'] as bool;
 
-                return Card(
-                  child: Stack(
-                    children: [
-                      Image.network(
-                        imageUrl!,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Center(
-                              child: Text('Erro ao carregar a imagem!'));
-                        },
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Visibility(
-                          visible: !isFavorite,
-                          child: Tooltip(
-                            message: 'Favoritar',
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.favorite,
-                                color: Colors.red,
+                return GestureDetector(
+                  onTap: () async {
+                    Animal uAnimmal = Animal(
+                        id: catImages[index]["id"],
+                        url: catImages[index]["url"],
+                        tipo: 0);
+
+                    _HomeScreenState().exibirDetalhes(context, uAnimmal);
+                  },
+                  child: Card(
+                    child: Stack(
+                      children: [
+                        Image.network(
+                          imageUrl!,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                                child: Text('Erro ao carregar a imagem!'));
+                          },
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Visibility(
+                            visible: !isFavorite,
+                            child: Tooltip(
+                              message: 'Favoritar',
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.favorite,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  Animal likeAnimmal = Animal(
+                                      id: catImages[index]["id"],
+                                      url: catImages[index]["url"],
+                                      tipo: 0);
+
+                                  //Adicionou aos favoritos
+                                  Favoritos.animaisFavoritos.add(likeAnimmal);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          "Adicionado aos favoritos com sucesso!"),
+                                      duration: Duration(milliseconds: 600),
+                                    ),
+                                  );
+
+                                  setState(() {
+                                    catImages[index]['isFavorite'] = true;
+                                  });
+                                },
                               ),
-                              onPressed: () {
-                                Animal likeAnimmal = Animal(
-                                    id: catImages[index]["id"],
-                                    url: catImages[index]["url"],
-                                    tipo: 0);
-
-                                //Adicionou aos favoritos
-                                Favoritos.animaisFavoritos.add(likeAnimmal);
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        "Adicionado aos favoritos com sucesso!"),
-                                    duration: Duration(milliseconds: 600),
-                                  ),
-                                );
-
-                                setState(() {
-                                  catImages[index]['isFavorite'] = true;
-                                });
-                              },
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
@@ -1355,12 +1420,18 @@ class InfoAnimal extends StatefulWidget {
 
 class _InfoAnimalState extends State<InfoAnimal> {
   String titulo = "The Cat Flutter!";
+  bool isFavorite = false;
 
   List<Map<String, dynamic>> getInfos = [];
+
+  bool animalExists(String id) {
+    return Favoritos.animaisFavoritos.any((animal) => animal.id == id);
+  }
 
   @override
   void initState() {
     super.initState();
+    isFavorite = animalExists(widget.animalDetails['id']);
 
     if (widget.animalDetails.containsKey('breeds')) {
       //Existe informação no ID do gato
@@ -1528,21 +1599,31 @@ class _InfoAnimalState extends State<InfoAnimal> {
                         dynamic valor = getInfos[index][chave];
 
                         return Card(
-                          child: ListTile(
-                            title: Text(chave),
-                            subtitle: (valor is int)
-                                ? Row(
-                                    children: List.generate(5, (i) {
-                                      if (i < valor) {
-                                        return Icon(Icons.star,
-                                            color: Colors.blue);
-                                      } else {
-                                        return Icon(Icons.star_border,
-                                            color: Colors.grey);
-                                      }
-                                    }),
-                                  )
-                                : Text(valor.toString()),
+                          child: Container(
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  title: Text(chave),
+                                  subtitle: (valor is int)
+                                      ? Row(
+                                          children: List.generate(5, (i) {
+                                            if (i < valor) {
+                                              return Icon(Icons.star,
+                                                  color: Colors.blue);
+                                            } else {
+                                              return Icon(Icons.star_border,
+                                                  color: Colors.grey);
+                                            }
+                                          }),
+                                        )
+                                      : Text(valor.toString()),
+                                ),
+                                Container(
+                                  height: 1,
+                                  color: Colors.blue, // Cor da linha azul
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -1551,6 +1632,31 @@ class _InfoAnimalState extends State<InfoAnimal> {
                 ],
               ),
       ),
+      floatingActionButton: isFavorite
+          ? null
+          : FloatingActionButton(
+              heroTag: "bt1",
+              onPressed: () {
+                Animal likeAnimmal = Animal(
+                    id: widget.animalDetails['id'],
+                    url: widget.animalDetails['url'],
+                    tipo: widget.animalDetails['tipo']);
+
+                setState(() {
+                  Favoritos.animaisFavoritos.add(likeAnimmal);
+                  isFavorite = true;
+                });
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Adicionado aos favoritos!"),
+                    duration: Duration(milliseconds: 600),
+                  ),
+                );
+              },
+              tooltip: 'Favoritar',
+              child: const Icon(Icons.favorite),
+            ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 3,
         onTap: (index) {

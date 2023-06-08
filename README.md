@@ -12,16 +12,12 @@
 <a id="Introdução"></a>
 ## :smiley_cat: INTRODUÇÃO
 
-Mini-projeto em Flutter/Dart desenvolvido na disciplina de POO I (DCT1107) da UFRN ministrada pelo professor Fabricio Vale de Azevedo Guerra. Esse aplicativo exibe e filtra imagens de gatos, por raças e categorias. Além disso, possiblita o usuário favoritar as imagens dos gatos/cachorros. O aplicativo possui 4 páginas principais:
+Mini-projeto em Flutter/Dart desenvolvido na disciplina de POO I (DCT1107) da UFRN ministrada pelo professor Fabricio Vale de Azevedo Guerra. Esse aplicativo exibe e filtra imagens de gatos e cachorros, por raças e categorias. Além disso, possiblita o usuário favoritar as imagens. O aplicativo possui 4 páginas principais:
 
 | Inicio | Raças | Busca | Favoritos |
 |---|---|---|---|
-<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Home.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Racas.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Busca.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Favoritos.png?raw=true'></img>
+<video src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/videos/home.mp4' width=180></video>|<video src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/videos/racas.mp4' width=180></video>|<video src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/videos/busca.mp4' width=180></video>|<video src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/videos/fav.mp4' width=180></video>
 <br/>
-
-| Descrição | Descrição² | Descrição³ | Sobre |
-|---|---|---|---|
-<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Descricao.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Descricao2.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Descricao3.png?raw=true'></img>|<img width='180px' src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/Creditos.png?raw=true'></img>
 
 <a id="Api"></a>
 ## :rocket: API UTILIZADA
@@ -44,7 +40,7 @@ As dependências que o projeto utiliza são:
 
 É de suma importância que você utilize o comando `flutter run -d chrome --web-renderer html` para rodar o aplicativo. Lembre-se de navegar até a pasta do projeto antes de executá-lo. A API infelizmente bloqueia a sua utilização fora da "navegação web", por exemplo, ela não permite que eu exiba as imagens em uma área de desenvolvimento que não seja web.
 
-> Caso você tenha o Git instalado na sua máquina, basta dar git clone:
+> Caso você tenha o Git instalado na sua máquina, basta dar git clone: (ou [baixe manualmente](https://github.com/SusuGostoso/TheCatFlutter/archive/refs/heads/master.zip))
 ```BASH
 git clone --single-branch --branch master https://github.com/SusuGostoso/TheCatFlutter.git
 ```

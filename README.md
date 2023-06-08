@@ -14,10 +14,19 @@
 
 Mini-projeto em Flutter/Dart desenvolvido na disciplina de POO I (DCT1107) da UFRN ministrada pelo professor Fabricio Vale de Azevedo Guerra. Esse aplicativo exibe e filtra imagens de gatos e cachorros, por raças e categorias. Além disso, possiblita o usuário favoritar as imagens. O aplicativo possui 4 páginas principais:
 
-| Inicio | Raças | Busca | Favoritos |
-|---|---|---|---|
-<video src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/videos/home.mp4' width=180></video>|<video src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/videos/racas.mp4' width=180></video>|<video src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/videos/busca.mp4' width=180></video>|<video src='https://github.com/SusuGostoso/TheCatFlutter/blob/master/images/src/videos/fav.mp4' width=180></video>
+<div align="center">
+
+| Inicio | Raças |
+|---|---|
+<video src="https://github.com/SusuGostoso/TheCatFlutter/assets/92827233/cafe9df0-a90d-4c4f-a837-4808aa125c63" width="180"></video>|<video src="https://github.com/SusuGostoso/TheCatFlutter/assets/92827233/ab2d1498-8680-46b4-abb0-530753499d34" width="180"></video>
 <br/>
+
+| Busca | Favoritos |
+|---|---|
+<video src="https://github.com/SusuGostoso/TheCatFlutter/assets/92827233/ca106405-14dd-4e26-bad1-24b0dd74f401" width="180"></video>|<video src="https://github.com/SusuGostoso/TheCatFlutter/assets/92827233/1b0d3732-10f5-4d15-b4e1-1627173469c0" width="180"></video>
+<br/>
+  
+</div>
 
 <a id="Api"></a>
 ## :rocket: API UTILIZADA

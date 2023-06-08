@@ -44,6 +44,22 @@ class _InfoAnimalState extends State<InfoAnimal> {
         });
       }
 
+      if (widget.animalDetails["breeds"][0].containsKey('weight')) {
+        if (widget.animalDetails["breeds"][0]["weight"].containsKey('metric')) {
+          getInfos.add({
+            "Peso (kg)": widget.animalDetails["breeds"][0]["weight"]["metric"]
+          });
+        }
+      }
+
+      if (widget.animalDetails["breeds"][0].containsKey('height')) {
+        if (widget.animalDetails["breeds"][0]["height"].containsKey('metric')) {
+          getInfos.add({
+            "Altura (cm)": widget.animalDetails["breeds"][0]["height"]["metric"]
+          });
+        }
+      }
+
       if (widget.animalDetails["breeds"][0].containsKey('temperament')) {
         getInfos.add(
             {"Temperamento": widget.animalDetails["breeds"][0]["temperament"]});

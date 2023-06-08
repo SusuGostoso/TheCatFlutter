@@ -10,11 +10,15 @@ class BreedsScreen extends StatefulWidget {
 
 class _BreedsScreenState extends State<BreedsScreen> {
   String? selectedBreed;
-  String? selectedBreedID = "abys";
+  String? selectedBreedID;
 
   List<dynamic> catImages = [];
   bool loading = false;
   String? errorMessage;
+  String nomeApp = "Raças";
+
+  static List<String> racasList = [];
+  static Map<String, String> racasIDs = {};
 
   Future<void> fetchCatImages() async {
     setState(() {
@@ -22,19 +26,22 @@ class _BreedsScreenState extends State<BreedsScreen> {
       errorMessage = null;
     });
 
+    var apiLinks = [
+      'https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=$selectedBreedID',
+      'https://api.thedogapi.com/v1/images/search?limit=10&breed_ids=$selectedBreedID'
+    ];
+
     try {
-      final response = await http.get(Uri.parse(
-          'https://api.thecatapi.com/v1/images/search?limit=10&breed_ids=$selectedBreedID'));
+      final response =
+          await http.get(Uri.parse(apiLinks[AppConfig.tipoAnimal]));
       if (response.statusCode == 200) {
         setState(() {
           catImages = jsonDecode(response.body) as List<dynamic>;
 
+          //nomeApp = (tipoAnimal == 0) ? "The Cat Flutter" : "The Dog Flutter";
           catImages.forEach((element) {
-            if (AppConfig().animalExists(element["id"])) {
-              element["isFavorite"] = true;
-            } else {
-              element["isFavorite"] = false;
-            }
+            element["isFavorite"] =
+                AppConfig().animalExists(element["id"]) ? true : false;
           });
         });
       } else {
@@ -56,7 +63,29 @@ class _BreedsScreenState extends State<BreedsScreen> {
   @override
   void initState() {
     super.initState();
-    selectedBreed = AppConfig.catBreeds.first;
+
+    setState(() {
+      if (AppConfig.tipoAnimal == 0) {
+        racasList = AppConfig.catBreeds;
+        racasIDs = AppConfig.breedIds;
+        nomeApp = "Raças de Gatos";
+      } else {
+        racasList = AppConfig.dogBreeds;
+        racasIDs = AppConfig.dogBreedIds;
+        nomeApp = "Raças de Cachorros";
+      }
+    });
+
+    List<String> values = racasIDs.values.toList();
+    selectedBreedID = values[1];
+    selectedBreed = racasList[1];
+
+    /* DEBUG
+    print('ID BREED: $selectedBreedID');
+    print('BREED: $selectedBreed');
+    print('TIPO: ${AppConfig.tipoAnimal}');
+    */
+
     fetchCatImages();
   }
 
@@ -64,7 +93,7 @@ class _BreedsScreenState extends State<BreedsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Raças'),
+        title: Text(nomeApp),
       ),
       body: Column(
         children: [
@@ -82,14 +111,13 @@ class _BreedsScreenState extends State<BreedsScreen> {
               onChanged: (value) {
                 setState(() {
                   selectedBreed = value;
-                  String? breedId = AppConfig.breedIds[
+                  String? breedId = racasIDs[
                       selectedBreed!]; // Obtém o ID da raça selecionada
                   selectedBreedID = breedId;
                   fetchCatImages();
                 });
               },
-              items: AppConfig.catBreeds
-                  .map<DropdownMenuItem<String>>((String breed) {
+              items: racasList.map<DropdownMenuItem<String>>((String breed) {
                 return DropdownMenuItem<String>(
                   value: breed,
                   child: Text(breed),
@@ -112,7 +140,7 @@ class _BreedsScreenState extends State<BreedsScreen> {
                     Animal uAnimmal = Animal(
                         id: catImages[index]["id"],
                         url: catImages[index]["url"],
-                        tipo: 0);
+                        tipo: AppConfig.tipoAnimal);
 
                     AppConfig().exibirDetalhes(context, uAnimmal);
                   },
@@ -142,7 +170,7 @@ class _BreedsScreenState extends State<BreedsScreen> {
                                   Animal likeAnimmal = Animal(
                                       id: catImages[index]["id"],
                                       url: catImages[index]["url"],
-                                      tipo: 0);
+                                      tipo: AppConfig.tipoAnimal);
 
                                   //Adicionou aos favoritos
                                   AppConfig.animaisFavoritos.add(likeAnimmal);

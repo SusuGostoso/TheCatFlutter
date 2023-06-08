@@ -15,7 +15,8 @@ class _HomeScreenState extends State<HomeScreen> {
   dynamic catImage;
   bool loading = false;
   String? errorMessage;
-  int tipoAnimal = AppConfig().tipoAnimal;
+  int tipoAnimal = AppConfig.tipoAnimal;
+  String nomeApp = "The Cat Flutter";
 
   @override
   void initState() {
@@ -25,10 +26,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> amei() async {
     if (catImage != null) {
-      Animal likeAnimmal =
-          Animal(id: catImage["id"], url: catImage["url"], tipo: tipoAnimal);
+      if (AppConfig().animalExists(catImage["id"])) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Desculpe, você já favoritou esse bixinho."),
+            duration: Duration(milliseconds: 1000),
+          ),
+        );
+      } else {
+        Animal likeAnimmal =
+            Animal(id: catImage["id"], url: catImage["url"], tipo: tipoAnimal);
 
-      AppConfig.animaisFavoritos.add(likeAnimmal);
+        AppConfig.animaisFavoritos.add(likeAnimmal);
+      }
 
       fetchCatImage();
     }
@@ -63,6 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
         final catImages = jsonDecode(response.body) as List<dynamic>;
         setState(() {
           catImage = catImages.isNotEmpty ? catImages[0] : null;
+
+          nomeApp = (tipoAnimal == 0) ? "The Cat Flutter" : "The Dog Flutter";
         });
       } else {
         setState(() {
@@ -86,11 +98,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void dislikeImage() {
-    if (tipoAnimal == 1) {
-      tipoAnimal = 0;
-    } else {
-      tipoAnimal = 1;
-    }
+    tipoAnimal = (tipoAnimal == 1) ? 0 : 1;
+    setState(() {
+      AppConfig.tipoAnimal = tipoAnimal;
+    });
+
     fetchCatImage();
   }
 
@@ -98,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('The Cat Flutter'),
+        title: Text(nomeApp),
       ),
       body: Stack(
         children: [
@@ -154,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         },
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Inicio',
@@ -190,6 +202,13 @@ class _HomeScreenState extends State<HomeScreen> {
           FloatingActionButton(
             heroTag: "bt2",
             onPressed: amei,
+            tooltip: 'Gostei',
+            child: const Icon(Icons.favorite),
+          ),
+          const SizedBox(width: 16),
+          FloatingActionButton(
+            heroTag: "bt3",
+            onPressed: likeImage,
             tooltip: 'Gostei',
             child: const Icon(Icons.thumb_up),
           ),

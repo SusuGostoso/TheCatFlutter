@@ -7,8 +7,10 @@ import '/data/Config.dart';
 import '/pages/Info.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -111,6 +113,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(nomeApp),
+        actions: [
+          if (AppConfig.animaisFavoritos.isNotEmpty)
+            NamedIcon(
+              text: 'Favoritos',
+              iconData: Icons.favorite,
+              notificationCount: AppConfig.animaisFavoritos.length,
+              onTap: () {
+                Navigator.pushNamed(context, '/favoritos');
+              },
+            ),
+        ],
       ),
       body: Stack(
         children: [
@@ -167,22 +180,53 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         type: BottomNavigationBarType.fixed,
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Inicio',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.pets),
             label: 'Raças',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Busca',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoritos',
-          ),
+          AppConfig.animaisFavoritos.isNotEmpty
+              ? BottomNavigationBarItem(
+                  icon: Stack(
+                    children: <Widget>[
+                      Icon(Icons.favorite),
+                      Positioned(
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 12,
+                            minHeight: 12,
+                          ),
+                          child: Text(
+                            '${AppConfig.animaisFavoritos.length}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  label: 'Favoritos',
+                )
+              : BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite),
+                  label: 'Favoritos',
+                ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
             label: 'Sobre',

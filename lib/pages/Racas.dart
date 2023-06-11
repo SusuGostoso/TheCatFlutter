@@ -94,6 +94,17 @@ class _BreedsScreenState extends State<BreedsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(nomeApp),
+        actions: [
+          if (AppConfig.animaisFavoritos.isNotEmpty)
+            NamedIcon(
+              text: 'Favoritos',
+              iconData: Icons.favorite,
+              notificationCount: AppConfig.animaisFavoritos.length,
+              onTap: () {
+                Navigator.pushNamed(context, '/favoritos');
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [
@@ -216,23 +227,54 @@ class _BreedsScreenState extends State<BreedsScreen> {
           }
         },
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Inicio',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.pets),
             label: 'Raças',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Busca',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoritos',
-          ),
+          AppConfig.animaisFavoritos.isNotEmpty
+              ? BottomNavigationBarItem(
+                  icon: Stack(
+                    children: <Widget>[
+                      Icon(Icons.favorite),
+                      Positioned(
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 12,
+                            minHeight: 12,
+                          ),
+                          child: Text(
+                            '${AppConfig.animaisFavoritos.length}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  label: 'Favoritos',
+                )
+              : BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite),
+                  label: 'Favoritos',
+                ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
             label: 'Sobre',

@@ -148,6 +148,15 @@ class _InfoAnimalState extends State<InfoAnimal> {
     return Scaffold(
       appBar: AppBar(
         title: Text(titulo),
+        actions: [
+          if (AppConfig.animaisFavoritos.isNotEmpty)
+            NamedIcon(
+              text: 'Total',
+              iconData: Icons.favorite,
+              notificationCount: AppConfig.animaisFavoritos.length,
+              onTap: () {},
+            ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
@@ -275,7 +284,7 @@ class _InfoAnimalState extends State<InfoAnimal> {
           }
         },
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Inicio',
@@ -288,10 +297,41 @@ class _InfoAnimalState extends State<InfoAnimal> {
             icon: Icon(Icons.search),
             label: 'Busca',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoritos',
-          ),
+          AppConfig.animaisFavoritos.isNotEmpty
+              ? BottomNavigationBarItem(
+                  icon: Stack(
+                    children: <Widget>[
+                      Icon(Icons.favorite),
+                      Positioned(
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 12,
+                            minHeight: 12,
+                          ),
+                          child: Text(
+                            '${AppConfig.animaisFavoritos.length}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  label: 'Favoritos',
+                )
+              : BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite),
+                  label: 'Favoritos',
+                ),
         ],
       ),
     );

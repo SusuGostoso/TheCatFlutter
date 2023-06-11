@@ -50,6 +50,15 @@ class _FavoritosState extends State<Favoritos> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Favoritos'),
+        actions: [
+          if (AppConfig.animaisFavoritos.isNotEmpty)
+            NamedIcon(
+              text: 'Total',
+              iconData: Icons.favorite,
+              notificationCount: AppConfig.animaisFavoritos.length,
+              onTap: () {},
+            ),
+        ],
       ),
       body: AppConfig.animaisFavoritos.isEmpty
           ? Center(
@@ -165,15 +174,46 @@ class _FavoritosState extends State<Favoritos> {
           }
         },
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Inicio',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoritos',
-          ),
+          AppConfig.animaisFavoritos.isNotEmpty
+              ? BottomNavigationBarItem(
+                  icon: Stack(
+                    children: <Widget>[
+                      Icon(Icons.favorite),
+                      Positioned(
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(1),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 12,
+                            minHeight: 12,
+                          ),
+                          child: Text(
+                            '${AppConfig.animaisFavoritos.length}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 8,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  label: 'Favoritos',
+                )
+              : BottomNavigationBarItem(
+                  icon: Icon(Icons.favorite),
+                  label: 'Favoritos',
+                ),
         ],
       ),
       floatingActionButton: AppConfig.animaisFavoritos.isEmpty

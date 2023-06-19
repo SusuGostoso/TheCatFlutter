@@ -7,7 +7,7 @@ import '/data/Config.dart';
 import '/pages/Info.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -64,8 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     var apiLinks = [
-      'https://api.thecatapi.com/v1/images/search',
-      'https://api.thedogapi.com/v1/images/search'
+      'https://api.thecatapi.com/v1/images/search?api_key=live_44jlEeZb2ATs5JUxt6xcDSAwpSkzzrBj5xLas0aswYxV5WDQYqsNi8edG7Bh9weR',
+      'https://api.thedogapi.com/v1/images/search?api_key=live_44jlEeZb2ATs5JUxt6xcDSAwpSkzzrBj5xLas0aswYxV5WDQYqsNi8edG7Bh9weR'
     ];
 
     try {
